@@ -20,8 +20,6 @@
       display: flex;
       align-items: center;
       gap: 20px;
-      width: 80vw;
-      max-width: 860px;
     }
     #imgBtn {
       width: 70px;
@@ -41,13 +39,13 @@
     }
     canvas {
       display: block;
-      flex: 1;
-      height: 60vh;
+      max-width: 80vw;
+      max-height: 70vh;
     }
     .controls {
       margin-top: 30px;
       width: 80vw;
-      max-width: 860px;
+      max-width: 800px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -98,7 +96,6 @@
     }
     #dirBtn:hover { background: black; color: white; }
     .separator { border: none; border-top: 1px solid #eee; margin: 6px 0; }
-    #randomSlider { accent-color: #111 !important; }
     #imgLabel {
       font-size: 11px;
       color: #aaa;
@@ -138,7 +135,7 @@
     <hr class="separator">
     <div class="slider-row">
       <label>Chaos</label>
-      <input type="range" id="randomSlider" min="0" max="1" step="0.01" value="0">
+      <input type="range" id="randomSlider" min="0" max="1" step="0.01" value="0" style="accent-color:#111">
       <span id="randomVal">0.00</span>
     </div>
   </div>
@@ -148,7 +145,7 @@ const images = [
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/3%20PERSONNAGE/suiise%20allemand.jpg',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Stephane-Ravier.png',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/steiniger_johannes_gross.jpg',
-  'https://picsum.photos/seed/ff/800/600',
+  'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/steiniger_johannes_gross.jpg',
 ];
 
 let imgIndex = 0;
@@ -159,9 +156,11 @@ const gl = canvas.getContext('webgl');
 const vsrc = `
   attribute vec2 a_pos;
   varying vec2 v_uv;
+  uniform float u_squeeze;
   void main(){
     vec2 uv = (a_pos + 1.0) / 2.0;
     uv.y = 1.0 - uv.y;
+    uv.y = uv.y * u_squeeze + (1.0 - u_squeeze) * 0.5;
     v_uv = uv;
     gl_Position = vec4(a_pos, 0, 1);
   }
@@ -208,15 +207,17 @@ const loc = gl.getAttribLocation(prog, 'a_pos');
 gl.enableVertexAttribArray(loc);
 gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
-const uTime = gl.getUniformLocation(prog, 'u_time');
-const uRep  = gl.getUniformLocation(prog, 'u_rep');
-const uSpd  = gl.getUniformLocation(prog, 'u_spd');
-const uAmp  = gl.getUniformLocation(prog, 'u_amp');
-const uDir  = gl.getUniformLocation(prog, 'u_dir');
+const uTime    = gl.getUniformLocation(prog, 'u_time');
+const uRep     = gl.getUniformLocation(prog, 'u_rep');
+const uSpd     = gl.getUniformLocation(prog, 'u_spd');
+const uAmp     = gl.getUniformLocation(prog, 'u_amp');
+const uDir     = gl.getUniformLocation(prog, 'u_dir');
+const uSqueeze = gl.getUniformLocation(prog, 'u_squeeze');
 
 let rep = 8, spd = 3, amp = 0.1, dir = 0;
 let baseRep = 8, baseSpd = 3, baseAmp = 0.1;
 let chaos = 0;
+let squeeze = 1.0;
 
 document.getElementById('rep').oninput = e => {
   baseRep = +e.target.value; rep = baseRep;
@@ -251,6 +252,28 @@ function loadImage(url) {
   img.src = url;
   img.onerror = () => { console.log('image non trouvée : ' + url); };
   img.onload = () => {
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    const isPortrait = h > w;
+
+    // Redimensionne le canvas selon le ratio de l'image
+    const maxW = window.innerWidth * 0.75;
+    const maxH = window.innerHeight * 0.65;
+    let cw, ch;
+    if (w / h > maxW / maxH) {
+      cw = maxW; ch = maxW * h / w;
+    } else {
+      ch = maxH; cw = maxH * w / h;
+    }
+    canvas.style.width = cw + 'px';
+    canvas.style.height = ch + 'px';
+    canvas.width = cw;
+    canvas.height = ch;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // Écrase légèrement les portraits
+    squeeze = isPortrait ? 0.75 : 1.0;
+
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   };
@@ -261,14 +284,6 @@ document.getElementById('imgBtn').onclick = () => {
   loadImage(images[imgIndex]);
   document.getElementById('imgLabel').textContent = 'Image ' + (imgIndex + 1) + ' / ' + images.length;
 };
-
-function resize() {
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-}
-resize();
-window.addEventListener('resize', resize);
 
 loadImage(images[0]);
 
@@ -284,6 +299,7 @@ function loop() {
   gl.uniform1f(uSpd, spd);
   gl.uniform1f(uAmp, Math.max(0, amp));
   gl.uniform1f(uDir, dir);
+  gl.uniform1f(uSqueeze, squeeze);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   requestAnimationFrame(loop);
 }
