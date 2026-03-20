@@ -178,6 +178,7 @@ const images = [
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/3%20PERSONNAGE/suiise%20allemand.jpg',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Stephane-Ravier.png',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/steiniger_johannes_gross.jpg',
+  'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/steiniger_johannes_gross.jpg',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Gilles-Lellouche.png',
 ];
 
@@ -197,10 +198,9 @@ const vsrc = `
     uv.y = 1.0 - uv.y;
     float r = u_imgRatio / u_canvasRatio;
     if(r > 1.0){
-      float scale = 1.0 / r;
-      uv.x = uv.x * scale + (1.0 - scale) * 0.5;
+      uv.y = uv.y / r + (1.0 - 1.0/r) * 0.5;
     } else {
-      uv.y = uv.y * r + (1.0 - r) * 0.5;
+      uv.x = uv.x * r + (1.0 - r) * 0.5;
     }
     v_uv = uv;
     gl_Position = vec4(a_pos, 0, 1);
