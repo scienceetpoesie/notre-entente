@@ -19,32 +19,52 @@
     .scene {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 20px;
+      width: 90vw;
+      max-width: 900px;
     }
     #imgBtn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: #b30000;
-      border: 5px solid #7a0000;
-      box-shadow: 0 4px 0 #4a0000, 0 6px 8px rgba(0,0,0,0.35);
-      cursor: pointer;
+      width: 60px;
+      height: 60px;
       flex-shrink: 0;
-      transition: transform 0.1s, box-shadow 0.1s;
+      background: #cc0000;
+      border-top: 3px solid #ff6666;
+      border-left: 3px solid #ff4444;
+      border-bottom: 3px solid #660000;
+      border-right: 3px solid #880000;
+      cursor: pointer;
+      font-family: Arial, sans-serif;
+      font-size: 11px;
+      font-weight: bold;
+      color: #ffcccc;
+      letter-spacing: 0.05em;
     }
-    #imgBtn:hover { background: #cc0000; }
     #imgBtn:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #4a0000, 0 2px 4px rgba(0,0,0,0.3);
+      border-top: 3px solid #660000;
+      border-left: 3px solid #880000;
+      border-bottom: 3px solid #ff6666;
+      border-right: 3px solid #ff4444;
+      background: #aa0000;
+    }
+    #canvasWrap {
+      width: 720px;
+      height: 480px;
+      flex-shrink: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
     }
     canvas {
       display: block;
-      max-width: 80vw;
-      max-height: 70vh;
+      width: 720px;
+      height: 480px;
     }
     .controls {
       margin-top: 30px;
-      width: 80vw;
+      width: 90vw;
       max-width: 800px;
       display: flex;
       flex-direction: column;
@@ -60,7 +80,7 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #555;
-      width: 120px;
+      width: 130px;
       flex-shrink: 0;
     }
     .slider-row input[type=range] { flex: 1; accent-color: #888; }
@@ -80,61 +100,74 @@
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #555;
-      width: 120px;
+      width: 130px;
       flex-shrink: 0;
     }
     #dirBtn {
-      padding: 6px 24px;
+      width: 48px;
+      height: 48px;
       font-size: 13px;
       font-family: 'Times New Roman', serif;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      background: transparent;
+      background: #f0f0f0;
       color: black;
-      border: 1.5px solid black;
+      border-top: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-bottom: 2px solid #888;
+      border-right: 2px solid #888;
       cursor: pointer;
+      font-weight: bold;
     }
-    #dirBtn:hover { background: black; color: white; }
+    #dirBtn:active {
+      border-top: 2px solid #888;
+      border-left: 2px solid #888;
+      border-bottom: 2px solid #fff;
+      border-right: 2px solid #fff;
+      background: #ddd;
+    }
     .separator { border: none; border-top: 1px solid #eee; margin: 6px 0; }
     #imgLabel {
       font-size: 11px;
       color: #aaa;
       letter-spacing: 0.08em;
       text-align: center;
-      margin-top: -8px;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
   <div class="scene">
-    <canvas id="c"></canvas>
+    <div id="canvasWrap">
+      <canvas id="c" width="720" height="480"></canvas>
+    </div>
     <button id="imgBtn"></button>
   </div>
-  <div id="imgLabel">Image 1 / 4</div>
+  <div id="imgLabel">Image 1 / 5</div>
 
   <div class="controls">
     <div class="slider-row">
-      <label>Répétition</label>
+      <label>Répétition :</label>
       <input type="range" id="rep" min="1" max="40" step="0.5" value="8">
       <span id="repVal">8</span>
     </div>
     <div class="slider-row">
-      <label>Vitesse</label>
+      <label>Vitesse :</label>
       <input type="range" id="spd" min="0" max="20" step="0.1" value="3">
       <span id="spdVal">3.0</span>
     </div>
     <div class="slider-row">
-      <label>Amplitude</label>
+      <label>Amplitude :</label>
       <input type="range" id="amp" min="0" max="0.8" step="0.01" value="0.1">
       <span id="ampVal">0.10</span>
     </div>
     <div class="btn-row">
-      <label>Direction</label>
+      <label>Axe :</label>
       <button id="dirBtn">X</button>
     </div>
     <hr class="separator">
     <div class="slider-row">
-      <label>Chaos</label>
+      <label>Chaos :</label>
       <input type="range" id="randomSlider" min="0" max="1" step="0.01" value="0" style="accent-color:#111">
       <span id="randomVal">0.00</span>
     </div>
@@ -145,22 +178,30 @@ const images = [
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/3%20PERSONNAGE/suiise%20allemand.jpg',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Stephane-Ravier.png',
   'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/steiniger_johannes_gross.jpg',
-  'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Gilles-Lellouche.png,
+  'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/Gilles-Lellouche.png',
 ];
 
 let imgIndex = 0;
 
 const canvas = document.getElementById('c');
 const gl = canvas.getContext('webgl');
+gl.viewport(0, 0, 720, 480);
 
 const vsrc = `
   attribute vec2 a_pos;
   varying vec2 v_uv;
-  uniform float u_squeeze;
+  uniform float u_imgRatio;
+  uniform float u_canvasRatio;
   void main(){
     vec2 uv = (a_pos + 1.0) / 2.0;
     uv.y = 1.0 - uv.y;
-    uv.y = uv.y * u_squeeze + (1.0 - u_squeeze) * 0.5;
+    float r = u_imgRatio / u_canvasRatio;
+    if(r > 1.0){
+      float scale = 1.0 / r;
+      uv.x = uv.x * scale + (1.0 - scale) * 0.5;
+    } else {
+      uv.y = uv.y * r + (1.0 - r) * 0.5;
+    }
     v_uv = uv;
     gl_Position = vec4(a_pos, 0, 1);
   }
@@ -176,7 +217,7 @@ const fsrc = `
   uniform sampler2D u_tex;
   void main(){
     vec2 uv = v_uv;
-    float mask = step(0.01,uv.x)*step(0.01,uv.y)*step(uv.x,0.99)*step(uv.y,0.99);
+    float mask = step(0.001,uv.x)*step(0.001,uv.y)*step(uv.x,0.999)*step(uv.y,0.999);
     if(u_dir < 0.5){
       uv.y += sin(v_uv.x * u_rep + u_time * u_spd) * u_amp;
     } else {
@@ -207,17 +248,19 @@ const loc = gl.getAttribLocation(prog, 'a_pos');
 gl.enableVertexAttribArray(loc);
 gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
-const uTime    = gl.getUniformLocation(prog, 'u_time');
-const uRep     = gl.getUniformLocation(prog, 'u_rep');
-const uSpd     = gl.getUniformLocation(prog, 'u_spd');
-const uAmp     = gl.getUniformLocation(prog, 'u_amp');
-const uDir     = gl.getUniformLocation(prog, 'u_dir');
-const uSqueeze = gl.getUniformLocation(prog, 'u_squeeze');
+const uTime       = gl.getUniformLocation(prog, 'u_time');
+const uRep        = gl.getUniformLocation(prog, 'u_rep');
+const uSpd        = gl.getUniformLocation(prog, 'u_spd');
+const uAmp        = gl.getUniformLocation(prog, 'u_amp');
+const uDir        = gl.getUniformLocation(prog, 'u_dir');
+const uImgRatio   = gl.getUniformLocation(prog, 'u_imgRatio');
+const uCanvasRatio= gl.getUniformLocation(prog, 'u_canvasRatio');
 
 let rep = 8, spd = 3, amp = 0.1, dir = 0;
 let baseRep = 8, baseSpd = 3, baseAmp = 0.1;
 let chaos = 0;
-let squeeze = 1.0;
+let imgRatio = 1.0;
+const canvasRatio = 720 / 480;
 
 document.getElementById('rep').oninput = e => {
   baseRep = +e.target.value; rep = baseRep;
@@ -252,28 +295,7 @@ function loadImage(url) {
   img.src = url;
   img.onerror = () => { console.log('image non trouvée : ' + url); };
   img.onload = () => {
-    const w = img.naturalWidth;
-    const h = img.naturalHeight;
-    const isPortrait = h > w;
-
-    // Redimensionne le canvas selon le ratio de l'image
-    const maxW = window.innerWidth * 0.75;
-    const maxH = window.innerHeight * 0.65;
-    let cw, ch;
-    if (w / h > maxW / maxH) {
-      cw = maxW; ch = maxW * h / w;
-    } else {
-      ch = maxH; cw = maxH * w / h;
-    }
-    canvas.style.width = cw + 'px';
-    canvas.style.height = ch + 'px';
-    canvas.width = cw;
-    canvas.height = ch;
-    gl.viewport(0, 0, canvas.width, canvas.height);
-
-    // Écrase légèrement les portraits
-    squeeze = isPortrait ? 0.75 : 1.0;
-
+    imgRatio = img.naturalWidth / img.naturalHeight;
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
   };
@@ -299,7 +321,8 @@ function loop() {
   gl.uniform1f(uSpd, spd);
   gl.uniform1f(uAmp, Math.max(0, amp));
   gl.uniform1f(uDir, dir);
-  gl.uniform1f(uSqueeze, squeeze);
+  gl.uniform1f(uImgRatio, imgRatio);
+  gl.uniform1f(uCanvasRatio, canvasRatio);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   requestAnimationFrame(loop);
 }
