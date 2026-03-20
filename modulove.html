@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>MODULOVE</title>
-  <link rel="icon" href="https://github.com/scienceetpoesie-coder/notre-entente/raw/refs/heads/main/assets/coeur" type="image/x-icon">
+  <link rel="icon" href="https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/assets/coeur" type="image/x-icon">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -16,16 +16,43 @@
       min-height: 100vh;
       padding: 40px 20px;
     }
+    .scene {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 80vw;
+      max-width: 860px;
+    }
+    #imgBtn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #b30000;
+      border: 5px solid #7a0000;
+      box-shadow: 0 4px 0 #4a0000, 0 6px 8px rgba(0,0,0,0.35);
+      cursor: pointer;
+      flex-shrink: 0;
+      font-size: 24px;
+      color: #ff9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    #imgBtn:hover { background: #cc0000; }
+    #imgBtn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #4a0000, 0 2px 4px rgba(0,0,0,0.3);
+    }
     canvas {
       display: block;
-      width: 80vw;
-      max-width: 800px;
+      flex: 1;
       height: 60vh;
     }
     .controls {
       margin-top: 30px;
       width: 80vw;
-      max-width: 800px;
+      max-width: 860px;
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -75,52 +102,64 @@
       cursor: pointer;
     }
     #dirBtn:hover { background: black; color: white; }
-    .separator {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 6px 0;
-    }
+    .separator { border: none; border-top: 1px solid #eee; margin: 6px 0; }
     #randomSlider { accent-color: #c00; }
+    #imgLabel {
+      font-size: 11px;
+      color: #aaa;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-top: -8px;
+    }
   </style>
 </head>
 <body>
-  <canvas id="c"></canvas>
-  <div class="controls">
+  <div class="scene">
+    <canvas id="c"></canvas>
+    <button id="imgBtn">►</button>
+  </div>
+  <div id="imgLabel">Image 1 / 6</div>
 
+  <div class="controls">
     <div class="slider-row">
       <label>Répétition</label>
       <input type="range" id="rep" min="1" max="40" step="0.5" value="8">
       <span id="repVal">8</span>
     </div>
-
     <div class="slider-row">
       <label>Vitesse</label>
       <input type="range" id="spd" min="0" max="20" step="0.1" value="3">
       <span id="spdVal">3.0</span>
     </div>
-
     <div class="slider-row">
       <label>Amplitude</label>
       <input type="range" id="amp" min="0" max="0.8" step="0.01" value="0.1">
       <span id="ampVal">0.10</span>
     </div>
-
     <div class="btn-row">
       <label>Direction</label>
       <button id="dirBtn">X</button>
     </div>
-
     <hr class="separator">
-
     <div class="slider-row">
       <label>Chaos</label>
       <input type="range" id="randomSlider" min="0" max="1" step="0.01" value="0">
-      <span id="randomVal">0</span>
+      <span id="randomVal">0.00</span>
     </div>
-
   </div>
 
 <script>
+const images = [
+  'https://picsum.photos/seed/aa/800/600',
+  'https://picsum.photos/seed/bb/800/600',
+  'https://picsum.photos/seed/cc/800/600',
+  'https://picsum.photos/seed/dd/800/600',
+  'https://picsum.photos/seed/ee/800/600',
+  'https://picsum.photos/seed/ff/800/600',
+];
+
+let imgIndex = 0;
+
 const canvas = document.getElementById('c');
 const gl = canvas.getContext('webgl');
 
@@ -186,37 +225,23 @@ let rep = 8, spd = 3, amp = 0.1, dir = 0;
 let baseRep = 8, baseSpd = 3, baseAmp = 0.1;
 let chaos = 0;
 
-const repSlider = document.getElementById('rep');
-const spdSlider = document.getElementById('spd');
-const ampSlider = document.getElementById('amp');
-const repVal    = document.getElementById('repVal');
-const spdVal    = document.getElementById('spdVal');
-const ampVal    = document.getElementById('ampVal');
-const dirBtn    = document.getElementById('dirBtn');
-const randomSlider = document.getElementById('randomSlider');
-
-repSlider.oninput = e => {
-  baseRep = +e.target.value;
-  rep = baseRep;
-  repVal.textContent = rep;
+document.getElementById('rep').oninput = e => {
+  baseRep = +e.target.value; rep = baseRep;
+  document.getElementById('repVal').textContent = rep;
 };
-spdSlider.oninput = e => {
-  baseSpd = +e.target.value;
-  spd = baseSpd;
-  spdVal.textContent = baseSpd.toFixed(1);
+document.getElementById('spd').oninput = e => {
+  baseSpd = +e.target.value; spd = baseSpd;
+  document.getElementById('spdVal').textContent = baseSpd.toFixed(1);
 };
-ampSlider.oninput = e => {
-  baseAmp = +e.target.value;
-  amp = baseAmp;
-  ampVal.textContent = baseAmp.toFixed(2);
+document.getElementById('amp').oninput = e => {
+  baseAmp = +e.target.value; amp = baseAmp;
+  document.getElementById('ampVal').textContent = baseAmp.toFixed(2);
 };
-
-dirBtn.onclick = () => {
+document.getElementById('dirBtn').onclick = () => {
   dir = dir < 0.5 ? 1 : 0;
-  dirBtn.textContent = dir < 0.5 ? 'X' : 'Y';
+  document.getElementById('dirBtn').textContent = dir < 0.5 ? 'X' : 'Y';
 };
-
-randomSlider.oninput = e => {
+document.getElementById('randomSlider').oninput = e => {
   chaos = +e.target.value;
   document.getElementById('randomVal').textContent = chaos.toFixed(2);
 };
@@ -227,14 +252,20 @@ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
-const img = new Image();
-img.crossOrigin = 'anonymous';
-img.src = 'https://raw.githubusercontent.com/scienceetpoesie-coder/notre-entente/main/steiniger_johannes_gross.jpg';
-img.onerror = () => { console.log('image non trouvée'); };
-img.onload = () => {
-  gl.bindTexture(gl.TEXTURE_2D, tex);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-  loop();
+function loadImage(url) {
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.src = url;
+  img.onload = () => {
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+  };
+}
+
+document.getElementById('imgBtn').onclick = () => {
+  imgIndex = (imgIndex + 1) % images.length;
+  loadImage(images[imgIndex]);
+  document.getElementById('imgLabel').textContent = 'Image ' + (imgIndex + 1) + ' / ' + images.length;
 };
 
 function resize() {
@@ -245,6 +276,8 @@ function resize() {
 resize();
 window.addEventListener('resize', resize);
 
+loadImage(images[0]);
+
 let noiseT = 0;
 function loop() {
   noiseT += 0.02;
@@ -252,7 +285,6 @@ function loop() {
   rep = baseRep + noise * chaos * 20;
   spd = baseSpd + Math.sin(noiseT * 0.9) * chaos * 10;
   amp = baseAmp + Math.cos(noiseT * 1.1) * chaos * 0.4;
-
   gl.uniform1f(uTime, performance.now() / 1000);
   gl.uniform1f(uRep, Math.max(0.1, rep));
   gl.uniform1f(uSpd, spd);
@@ -261,6 +293,7 @@ function loop() {
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   requestAnimationFrame(loop);
 }
+loop();
 </script>
 </body>
 </html>
