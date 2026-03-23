@@ -5,66 +5,217 @@
 <meta charset="utf-8">
 <title>MODULOVE</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background:#fff; font-family:'Times New Roman',serif;
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  min-height:100vh; padding:40px 20px; gap:20px;
+:root {
+  --bg:        #c8b89a;
+  --bg2:       #b8a888;
+  --bg3:       #d4c5aa;
+  --shadow:    #7a6a52;
+  --gold:      #9a7c3a;
+  --gold-hi:   #c4a455;
+  --gold-dk:   #6b5220;
+  --text:      #2e2214;
+  --text-dim:  #6b5a3e;
+  --text-info: #7a6030;
+  --bord:      #7a1a2a;
+  --bord-hi:   #b03048;
+  --bord-dk:   #3e0a12;
+  --sep:       #a09070;
 }
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  padding: 40px 20px;
+  gap: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E"),
+    linear-gradient(160deg, var(--bg3) 0%, var(--bg) 40%, var(--bg2) 100%);
+}
+
+#appTitle {
+  font-size: 18px;
+  letter-spacing: .36em;
+  text-transform: uppercase;
+  color: var(--gold-dk);
+  text-shadow: 0 1px 0 var(--gold-hi);
+  user-select: none;
+  font-weight: 700;
+}
+
 .scene { display:flex; align-items:center; justify-content:center; gap:20px; }
+
+.canvas-frame {
+  padding: 6px;
+  background: var(--bg2);
+  border-top:  3px solid var(--bg3);
+  border-left: 3px solid var(--bg3);
+  border-bottom: 3px solid var(--shadow);
+  border-right:  3px solid var(--shadow);
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.35);
+}
+
+canvas { display:block; width:720px; height:480px; flex-shrink:0; }
+
 #imgBtn {
-  width:60px; height:60px; flex-shrink:0; background:#cc0000;
-  border-top:3px solid #ff6666; border-left:3px solid #ff4444;
-  border-bottom:3px solid #660000; border-right:3px solid #880000; cursor:pointer;
+  width:60px; height:60px; flex-shrink:0;
+  background: #cc0000;
+  border-top:  3px solid #ff6666; border-left:  3px solid #ff4444;
+  border-bottom:3px solid #660000; border-right: 3px solid #880000;
+  cursor:pointer;
 }
 #imgBtn:active {
-  border-top:3px solid #660000; border-left:3px solid #880000;
-  border-bottom:3px solid #ff6666; border-right:3px solid #ff4444; background:#aa0000;
+  border-top:  3px solid #660000; border-left:  3px solid #880000;
+  border-bottom:3px solid #ff6666; border-right: 3px solid #ff4444;
+  background: #aa0000;
 }
+
 #soundBtn {
   width:60px; height:60px; flex-shrink:0;
-  background:#fff; border:2px solid #111;
-  cursor:pointer; font-size:32px; color:#111;
+  background: var(--bg3);
+  border-top:   3px solid #ede0cc; border-left:  3px solid #ede0cc;
+  border-bottom:3px solid var(--shadow); border-right: 3px solid var(--shadow);
+  cursor:pointer; font-size:28px;
+  color: var(--text-dim);
   display:flex; align-items:center; justify-content:center;
-  user-select:none; font-family:'Times New Roman',serif; line-height:1;
+  user-select:none; line-height:1;
 }
-#soundBtn.on { color:#ddd; background:#1a1a2e; border-color:#5555bb; }
-canvas { display:block; width:720px; height:480px; flex-shrink:0; }
-.controls { width:90vw; max-width:800px; display:flex; flex-direction:column; gap:14px; }
+#soundBtn.on {
+  background: #2244aa;
+  border-top:   3px solid #4466cc; border-left:  3px solid #4466cc;
+  border-bottom:3px solid #112266; border-right: 3px solid #112266;
+  color: #ccdeff;
+  text-shadow: 0 0 6px rgba(100,160,255,0.7);
+}
+#soundBtn:active {
+  border-top:   3px solid var(--shadow); border-left:  3px solid var(--shadow);
+  border-bottom:3px solid #ede0cc;      border-right: 3px solid #ede0cc;
+  background: var(--bg2);
+}
+
+.controls {
+  width: 90vw; max-width: 800px;
+  display: flex; flex-direction: column; gap: 12px;
+  background: var(--bg2);
+  border-top:   2px solid var(--shadow);
+  border-left:  2px solid var(--shadow);
+  border-bottom:2px solid var(--bg3);
+  border-right: 2px solid var(--bg3);
+  padding: 18px 22px;
+  box-shadow: inset 1px 1px 4px rgba(0,0,0,0.18);
+}
+
 .slider-row { display:flex; align-items:center; gap:16px; }
-.slider-row label { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:#555; width:130px; flex-shrink:0; }
-.slider-row input[type=range] { flex:1; accent-color:#888; }
-.slider-row span { font-size:13px; color:#333; width:44px; text-align:right; }
+.slider-row label {
+  font-size: 11px; letter-spacing:.10em; text-transform:uppercase;
+  color: var(--text); width:130px; flex-shrink:0;
+  font-weight: bold;
+}
+.slider-row input[type=range] {
+  flex:1; cursor:pointer;
+  -webkit-appearance:none; appearance:none;
+  height:5px;
+  border-radius:3px;
+  outline:none;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.4);
+  background: linear-gradient(to right, var(--shadow) 0%, var(--shadow) 0%, var(--gold) 0%, var(--gold) 100%);
+}
+.slider-row input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; appearance:none;
+  width:13px; height:13px;
+  border-radius:50%;
+  background: var(--bord);
+  border: 2px solid var(--bord-hi);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+  cursor:pointer;
+}
+.slider-row input[type=range]::-moz-range-thumb {
+  width:13px; height:13px; border-radius:50%;
+  background: var(--bord);
+  border: 2px solid var(--bord-hi);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.55);
+  cursor:pointer;
+}
+.slider-row span {
+  font-size:12px; color: var(--text);
+  width:44px; text-align:right;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  letter-spacing:.04em;
+}
+
 .btn-row { display:flex; align-items:center; gap:16px; }
-.btn-row label { font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:#555; width:130px; flex-shrink:0; }
+.btn-row label {
+  font-size:11px; letter-spacing:.10em; text-transform:uppercase;
+  color: var(--text); width:130px; flex-shrink:0;
+  font-weight: bold;
+}
+
 #dirBtn {
-  width:48px; height:48px; font-size:13px; font-family:'Times New Roman',serif;
-  background:#f0f0f0; color:black;
-  border-top:2px solid #fff; border-left:2px solid #fff;
-  border-bottom:2px solid #888; border-right:2px solid #888; cursor:pointer; font-weight:bold;
+  width:48px; height:48px; font-size:13px;
+  font-family:'Times New Roman',serif;
+  background: var(--bg); color: var(--text);
+  border-top:2px solid var(--bg3); border-left:2px solid var(--bg3);
+  border-bottom:2px solid var(--shadow); border-right:2px solid var(--shadow);
+  cursor:pointer; font-weight:bold;
 }
 #dirBtn:active {
-  border-top:2px solid #888; border-left:2px solid #888;
-  border-bottom:2px solid #fff; border-right:2px solid #fff; background:#ddd;
+  border-top:2px solid var(--shadow); border-left:2px solid var(--shadow);
+  border-bottom:2px solid var(--bg3); border-right:2px solid var(--bg3);
+  background: var(--bg2);
 }
-.separator { border:none; border-top:1px solid #eee; margin:6px 0; }
-.section-label { font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:#555; }
+
+.separator {
+  border:none;
+  border-top: 1px solid var(--sep);
+  margin: 4px 0;
+}
+
+.section-label {
+  font-size:10px; letter-spacing:.16em; text-transform:uppercase;
+  color: var(--gold);
+  font-weight: bold;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--gold-dk);
+  display: inline-block;
+}
+
 #infoLine {
-  font-family:Arial,sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   width:720px; max-width:90vw;
-  padding:6px 0 0 260px;
-  display:flex; align-items:baseline; gap:18px;
+  padding: 0 0 0 272px;
+  height: 32px;
+  display:flex; align-items:center; gap:20px;
+  flex-shrink:0;
 }
-#imgLabel  { font-size:13px; color:#888; letter-spacing:.06em; }
-#synthInfo { font-size:11px; color:#7777bb; letter-spacing:.08em; text-transform:uppercase; min-height:16px; }
+#imgLabel {
+  font-size:13px; color: var(--text-dim);
+  letter-spacing:.04em; font-style:italic;
+  white-space:nowrap;
+}
+#synthInfo {
+  font-size:10px; color: var(--text-info);
+  letter-spacing:.10em; text-transform:uppercase;
+  font-family: 'Courier New', monospace;
+  white-space:nowrap;
+}
 </style>
 </head>
 <body>
 
+<div id="appTitle">Modulove</div>
+
 <div class="scene">
   <button id="soundBtn">&#9834;</button>
-  <canvas id="c" width="720" height="480"></canvas>
+  <div class="canvas-frame">
+    <canvas id="c" width="720" height="480"></canvas>
+  </div>
   <button id="imgBtn"></button>
 </div>
 
@@ -84,7 +235,7 @@ canvas { display:block; width:720px; height:480px; flex-shrink:0; }
   <div class="slider-row"><label>Amplitude :</label><input type="range" id="amp" min="0" max="0.35" step="0.005" value="0.04"><span id="ampVal">0.04</span></div>
   <div class="btn-row"><label>Axe :</label><button id="dirBtn">Y</button></div>
   <div class="section-label">Chaos :</div>
-  <div class="slider-row"><input type="range" id="randomSlider" min="0" max="1.8" step="0.01" value="0" style="accent-color:#111"><span id="randomVal">0.00</span></div>
+  <div class="slider-row"><input type="range" id="randomSlider" min="0" max="1.8" step="0.01" value="0"><span id="randomVal">0.00</span></div>
 </div>
 
 <script>
@@ -111,6 +262,22 @@ var images = [
   { url:BASE+'Beigbeder.jpg',
     name:'Frédéric Beigbeder', synth:'beigbeder',
     defaults:{scaleY:0.78,scaleX:0.77,rep:5,spd:10.2,amp:0.26,dir:0,chaos:0.11} },
+
+  /* ── CHARLES GAVE ──────────────────────────────────────────
+     Remplace l'URL ci-dessous par ton lien GitHub raw, exemple :
+     url: 'https://raw.githubusercontent.com/TON-USER/TON-REPO/main/modulove%20portaits/charles-gave.jpg'
+  ─────────────────────────────────────────────────────────── */
+  { url: 'https://github.com/scienceetpoesie/notre-entente/blob/main/modulove%20portaits/Charles%20Gave.png?raw=true',
+    name:'Charles Gave', synth:'gave',
+    defaults:{scaleY:1.00,scaleX:1.00,rep:8,spd:4,amp:0.08,dir:1,chaos:0} },
+
+  /* ── GÉRARD LARCHER ─────────────────────────────────────────
+     Remplace l'URL ci-dessous par ton lien GitHub raw, exemple :
+     url: 'https://raw.githubusercontent.com/scienceetpoesie/notre-entente/main/modulove%20portaits/gerard-larcher.jpg'
+  ─────────────────────────────────────────────────────────── */
+  { url: 'https://github.com/scienceetpoesie/notre-entente/blob/main/modulove%20portaits/G%C3%A9rard%20Larcher.jpg?raw=true',
+    name:'Gérard Larcher', synth:'larcher',
+    defaults:{scaleY:1.00,scaleX:1.00,rep:6,spd:2,amp:0.06,dir:1,chaos:0} },
 ];
 
 var imgIndex = 0;
@@ -247,14 +414,25 @@ function applyParams(p){
   document.getElementById('amp').value=gAmp;             document.getElementById('ampVal').textContent=(+gAmp).toFixed(2);
   document.getElementById('dirBtn').textContent=gDir<0.5?'X':'Y';
   document.getElementById('randomSlider').value=gChaos;  document.getElementById('randomVal').textContent=(+gChaos).toFixed(2);
+  initAllSliders();
 }
 
-document.getElementById('rep').oninput          = function(e){ gRep   =+e.target.value; document.getElementById('repVal').textContent   =(+gRep).toFixed(1);    };
-document.getElementById('spd').oninput = function(e){ gSpd=+e.target.value; gSpdTarget=gSpd; document.getElementById('spdVal').textContent=(+gSpd).toFixed(1); };
-document.getElementById('amp').oninput          = function(e){ gAmp   =+e.target.value; document.getElementById('ampVal').textContent   =(+gAmp).toFixed(2);    };
-document.getElementById('scaleX').oninput       = function(e){ gScaleX=+e.target.value; document.getElementById('scaleXVal').textContent=(+gScaleX).toFixed(2); };
-document.getElementById('scaleY').oninput       = function(e){ gScaleY=+e.target.value; document.getElementById('scaleYVal').textContent=(+gScaleY).toFixed(2); };
-document.getElementById('randomSlider').oninput = function(e){ gChaos =+e.target.value; document.getElementById('randomVal').textContent=(+gChaos).toFixed(2);  };
+/* ── remplissage or/brun des sliders selon valeur ── */
+function updateSliderFill(el){
+  var min=+el.min, max=+el.max, val=+el.value;
+  var pct = ((val - min) / (max - min) * 100).toFixed(1);
+  el.style.background = 'linear-gradient(to right, #7a6a52 0%, #7a6a52 '+pct+'%, #9a7c3a '+pct+'%, #9a7c3a 100%)';
+}
+function initAllSliders(){
+  document.querySelectorAll('input[type=range]').forEach(function(s){ updateSliderFill(s); });
+}
+
+document.getElementById('rep').oninput = function(e){ gRep=+e.target.value; document.getElementById('repVal').textContent=(+gRep).toFixed(1); updateSliderFill(e.target); };
+document.getElementById('spd').oninput = function(e){ gSpd=+e.target.value; gSpdTarget=gSpd; document.getElementById('spdVal').textContent=(+gSpd).toFixed(1); updateSliderFill(e.target); };
+document.getElementById('amp').oninput = function(e){ gAmp=+e.target.value; document.getElementById('ampVal').textContent=(+gAmp).toFixed(2); updateSliderFill(e.target); };
+document.getElementById('scaleX').oninput = function(e){ gScaleX=+e.target.value; document.getElementById('scaleXVal').textContent=(+gScaleX).toFixed(2); updateSliderFill(e.target); };
+document.getElementById('scaleY').oninput = function(e){ gScaleY=+e.target.value; document.getElementById('scaleYVal').textContent=(+gScaleY).toFixed(2); updateSliderFill(e.target); };
+document.getElementById('randomSlider').oninput = function(e){ gChaos=+e.target.value; document.getElementById('randomVal').textContent=(+gChaos).toFixed(2); updateSliderFill(e.target); };
 document.getElementById('imgBtn').onclick = function(){ imgIndex=(imgIndex+1)%images.length; loadImage(imgIndex,false); };
 
 /* ── X/Y : change forme d'onde à chaud, sans relancer l'enveloppe ── */
@@ -291,6 +469,13 @@ function applyWaveformSwitch(name){
       patchNodes[0].type = inv?'triangle':'sine';   /* oA */
       patchNodes[1].type = inv?'triangle':'sine';   /* oB */
       patchNodes[9].type = inv?'highpass':'lowpass';/* filt */
+    } else if(name==='gave'){
+      patchNodes[0].type = inv?'sine':'sawtooth';   /* carrier */
+      patchNodes[1].type = inv?'sine':'triangle';   /* mod1   */
+      patchNodes[2].type = inv?'triangle':'square'; /* mod2   */
+    } else if(name==='larcher'){
+      patchNodes[0].type = inv?'sine':'sawtooth';   /* osc principal */
+      patchNodes[1].type = inv?'sine':'triangle';   /* osc secondaire */
     }
   }catch(e){}
 }
@@ -303,6 +488,8 @@ var PATCH_LABELS = {
   blocher:   ['patch : sub triangle · battements · montagnard','patch : sub sine · tellurique · massif'],
   lellouche: ['patch : fm 3-op sine · pur→chaos · charnel',  'patch : fm 3-op · cinématique · ascendant'],
   beigbeder: ['patch : drone triangle · flottant · mélancolie sèche','patch : drone sine · noyé · mélancolie alcoolisée'],
+  gave:      ['patch : fm dual · aigre · clavecin brisé',    'patch : fm dual · sawtooth · harangue libérale'],
+  larcher:   ['patch : comb sine · solennel · chambre vide', 'patch : comb saw · pompeux · discours fleuve'],
 };
 function updatePatchLabel(name){
   var inv=(gDir<0.5);
@@ -371,12 +558,16 @@ function rebuildPatch(name){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/18);
       carrier.frequency.setTargetAtTime(fc,t,.10);
       modOsc.frequency.setTargetAtTime(fc*(0.5+gSpd*0.22),t,.10);
-      modGain.gain.setTargetAtTime(fc*Math.min(0.35+gSpd*0.13,2.8),t,.08);
-      lfo.frequency.setTargetAtTime(0.3+gSpd*0.22,t,.10);
+      /* chaos : index FM qui monte = plus de sidebands, saturation progressive */
+      var idx = fc*(Math.min(0.35+gSpd*0.13, 2.8) + gChaos*4.5);
+      modGain.gain.setTargetAtTime(idx,t,.08);
+      lfo.frequency.setTargetAtTime(0.3+gSpd*0.22+gChaos*8,t,.10);
       lfoG.gain.setTargetAtTime(gAmp*160,t,.06);
       filt.frequency.setTargetAtTime(180+gScaleY*1700,t,.10);
-      filt.Q.setTargetAtTime(inv?1.6:(1.4+gChaos*7),t,.08);
-      if(sh) try{sh.node.gain.setTargetAtTime(fc*gChaos*0.85,t,.05);}catch(e){}
+      /* chaos : Q qui résonne jusqu'au cri */
+      filt.Q.setTargetAtTime(inv?(1.6+gChaos*12):(1.4+gChaos*14),t,.08);
+      /* chaos : waveshaper de plus en plus dur */
+      wave.curve=tanhCurve(inv?(1.1+gChaos*6):(1.6+gChaos*8));
     };
 
   /* ── STEINIGER — Ring mod
@@ -400,16 +591,18 @@ function rebuildPatch(name){
     if(sh) patchNodes.push(sh);
     updateFn=function(){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
-      var ratio=1+(0.5+gSpd*0.35)*0.04;
+      /* chaos : ratio oA/oB qui dérive → battements de plus en plus larges */
+      var drift = 1 + (0.5+gSpd*0.35)*0.04 + gChaos*0.18;
       oA.frequency.setTargetAtTime(fc,t,.10);
-      oB.frequency.setTargetAtTime(fc*ratio,t,.10);
+      oB.frequency.setTargetAtTime(fc*drift,t,.10);
       oA.detune.setTargetAtTime((gScaleX-1)*70,t,.10);
       oB.detune.setTargetAtTime(-(gScaleX-1)*70,t,.10);
       filt.frequency.setTargetAtTime(inv?(600+gScaleY*2800):(150+gScaleY*1500),t,.10);
-      lfo.frequency.setTargetAtTime(0.04+gSpd*0.09,t,.10);
-      lfoG.gain.setTargetAtTime(gAmp*420,t,.07);
-      filt.Q.setTargetAtTime(inv?(1.2+gChaos*5):(1.8+gChaos*8),t,.10);
-      if(sh) try{sh.node.gain.setTargetAtTime((inv?900:650)*gChaos,t,.05);}catch(e){}
+      /* chaos : LFO accélère → balayage filtre de plus en plus rapide */
+      lfo.frequency.setTargetAtTime(0.04+gSpd*0.09+gChaos*3.5,t,.10);
+      lfoG.gain.setTargetAtTime(gAmp*420+gChaos*800,t,.07);
+      /* chaos : Q monte → résonance métallique de plus en plus criante */
+      filt.Q.setTargetAtTime(inv?(1.2+gChaos*9):(1.8+gChaos*12),t,.10);
     };
 
   /* ── VAL — Cross mod
@@ -438,15 +631,17 @@ function rebuildPatch(name){
     updateFn=function(){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
       oA.frequency.setTargetAtTime(fc,t,.10);
-      oB.frequency.setTargetAtTime(fc*1.618,t,.10);
-      var idx=fc*(0.15+gSpd*0.18+gChaos*1.8);
+      /* chaos : ratio golden qui dévie → inharmonicité croissante */
+      oB.frequency.setTargetAtTime(fc*(1.618+gChaos*0.9),t,.10);
+      /* chaos : index cross-mod explose = sons métalliques/aléatoires */
+      var idx=fc*(0.15+gSpd*0.18+gChaos*3.2);
       gAB.gain.setTargetAtTime(idx,t,.08);
-      gBA.gain.setTargetAtTime(idx*0.7,t,.08);
-      lfo.frequency.setTargetAtTime(0.15+gSpd*0.25,t,.10);
+      gBA.gain.setTargetAtTime(idx*(0.7+gChaos*0.5),t,.08);
+      lfo.frequency.setTargetAtTime(0.15+gSpd*0.25+gChaos*2,t,.10);
       lfoG.gain.setTargetAtTime(gAmp*750,t,.06);
       filt.frequency.setTargetAtTime(300+gScaleY*3200,t,.10);
-      filt.Q.setTargetAtTime(1.5+gChaos*9,t,.10);
-      if(sh) try{sh.node.gain.setTargetAtTime(fc*gChaos*1.2,t,.05);}catch(e){}
+      /* chaos : Q très haut = filtre qui siffle */
+      filt.Q.setTargetAtTime(1.5+gChaos*14,t,.10);
     };
 
   /* ── BLOCHER — Sub + ring mod tellurique
@@ -474,16 +669,21 @@ function rebuildPatch(name){
     patchNodes=[sub,ringOsc,lfo,subG,ringG,ringOut,comb,lfoG];
     if(sh) patchNodes.push(sh);
     updateFn=function(){
-      var t=actx.currentTime, fc=28*Math.pow(2,gRep/18);
-      sub.frequency.setTargetAtTime(fc,t,.35);
-      var beatFreq=inv?(2.5+gSpd*1.2):(0.8+gSpd*0.5);
-      ringOsc.frequency.setTargetAtTime(fc+beatFreq,t,.30);
-      ringOut.gain.setTargetAtTime(0.15+gAmp*0.6,t,.15);
-      comb.frequency.setTargetAtTime(inv?(120+gScaleY*480):(45+gScaleY*340),t,.25);
-      comb.Q.setTargetAtTime(inv?(1.0+gChaos*5):(1.2+gChaos*9),t,.12);
-      lfo.frequency.setTargetAtTime(0.01+gSpd*0.03,t,.25);
-      lfoG.gain.setTargetAtTime(gAmp*240,t,.10);
-      if(sh) try{sh.node.gain.setTargetAtTime(fc*gChaos*0.65,t,.05);}catch(e){}
+      var t=actx.currentTime;
+      /* fréquence de base relevée : plus de médiums accessibles via répétition */
+      var fc=55*Math.pow(2,gRep/12);
+      sub.frequency.setTargetAtTime(fc,t,.25);
+      /* chaos : beat freq qui s'emballe → pulsation de plus en plus rapide */
+      var beatFreq=inv?(1.2+gSpd*0.8+gChaos*18):(0.4+gSpd*0.35+gChaos*12);
+      ringOsc.frequency.setTargetAtTime(fc+beatFreq,t,.20);
+      ringOut.gain.setTargetAtTime(0.15+gAmp*0.6,t,.12);
+      /* hauteur (scaleY) → ouverture du filtre = timbre de grave à médium */
+      comb.frequency.setTargetAtTime(
+        inv?(200+gScaleY*2200+gChaos*1800):(80+gScaleY*1800+gChaos*1200),t,.18);
+      /* largeur (scaleX) → Q du filtre = son étroit ou large */
+      comb.Q.setTargetAtTime(inv?(0.8+gScaleX*3+gChaos*6):(0.6+gScaleX*4+gChaos*8),t,.12);
+      lfo.frequency.setTargetAtTime(0.02+gSpd*0.06+gChaos*0.4,t,.20);
+      lfoG.gain.setTargetAtTime(gAmp*320,t,.10);
     };
 
   /* ── LELLOUCHE — FM 3-op feedback
@@ -514,19 +714,23 @@ function rebuildPatch(name){
     patchNodes=[op1,op2,op3,car,lfo,g1,g2,g3,gCar,fbG,lfoM,filt];
     if(sh) patchNodes.push(sh);
     updateFn=function(){
-      var t=actx.currentTime, fc=55*Math.pow(2,gRep/12), fmR=0.5+gSpd*0.32;
+      var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
+      /* chaos : ratio opérateurs qui dévient → spectre FM qui se déforme */
+      var fmR=0.5+gSpd*0.32+gChaos*0.8;
       car.frequency.setTargetAtTime(fc,t,.08);
       op3.frequency.setTargetAtTime(fc*fmR,t,.08);
-      op2.frequency.setTargetAtTime(fc*fmR*1.4,t,.08);
-      op1.frequency.setTargetAtTime(fc*fmR*1.9,t,.08);
-      var idx=fc*(0.28+gChaos*3.5);
-      g1.gain.setTargetAtTime(idx,t,.08); g2.gain.setTargetAtTime(idx*.58,t,.08); g3.gain.setTargetAtTime(idx*.28,t,.08);
+      op2.frequency.setTargetAtTime(fc*fmR*(1.4+gChaos*0.6),t,.08);
+      op1.frequency.setTargetAtTime(fc*fmR*(1.9+gChaos*1.2),t,.08);
+      var idx=fc*(0.28+gChaos*4.0);
+      g1.gain.setTargetAtTime(idx,t,.08);
+      g2.gain.setTargetAtTime(idx*.58,t,.08);
+      g3.gain.setTargetAtTime(idx*.28,t,.08);
       lfo.frequency.setTargetAtTime(0.2+gSpd*0.17,t,.10);
       lfoM.gain.setTargetAtTime(gAmp*idx*1.4,t,.05);
-      fbG.gain.setTargetAtTime(inv?(gChaos*0.55):(gChaos*0.38),t,.10);
+      /* chaos : feedback qui s'emballe = distorsion FM interne */
+      fbG.gain.setTargetAtTime(inv?(gChaos*0.72):(gChaos*0.58),t,.08);
       filt.frequency.setTargetAtTime(280+gScaleY*2700,t,.10);
-      filt.Q.setTargetAtTime(1.4+gChaos*8,t,.10);
-      if(sh) try{sh.node.gain.setTargetAtTime(fc*gChaos*0.75,t,.05);}catch(e){}
+      filt.Q.setTargetAtTime(1.4+gChaos*10,t,.10);
     };
 
   /* ── BEIGBEDER — Drone mélancolique
@@ -561,18 +765,113 @@ function rebuildPatch(name){
       var t=actx.currentTime;
       var fc=55*Math.pow(2,gRep/20);
       oA.frequency.setTargetAtTime(fc,t,.60);
-      var beat=0.4+gSpd*0.18;
-      oB.frequency.setTargetAtTime(fc*1.5+beat,t,.55);
-      oC.frequency.setTargetAtTime(fc*5,t,.50);
+      /* chaos : ratio quinte (1.5) qui glisse vers le triton (1.414) puis se désaccorde */
+      var ratio=1.5 - gChaos*0.18;
+      var beat=0.4+gSpd*0.18+gChaos*4;
+      oB.frequency.setTargetAtTime(fc*ratio+beat,t,.45);
+      /* chaos : harmonique haute qui décroche de l'octave */
+      oC.frequency.setTargetAtTime(fc*(5+gChaos*3.5),t,.40);
       filt.frequency.setTargetAtTime(
         inv?(280+gScaleY*900+gAmp*2400):(140+gScaleY*900+gAmp*2000),t,.40);
-      filt.Q.setTargetAtTime(inv?(0.8+gChaos*3):(1.0+gChaos*4),t,.30);
-      lfo.frequency.setTargetAtTime(0.02+gSpd*0.012,t,.80);
-      lfoA.gain.setTargetAtTime(gAmp*500,t,.30);
+      filt.Q.setTargetAtTime(inv?(0.8+gChaos*5):(1.0+gChaos*6),t,.25);
+      lfo.frequency.setTargetAtTime(0.02+gSpd*0.012+gChaos*0.08,t,.80);
+      lfoA.gain.setTargetAtTime(gAmp*500+gChaos*600,t,.25);
       lfoB.gain.setTargetAtTime(gAmp*0.10,t,.30);
-      if(sh) try{sh.node.gain.setTargetAtTime(gChaos*200,t,.20);}catch(e){}
-      ap1.frequency.setTargetAtTime(500+gScaleX*500,t,.35);
-      ap2.frequency.setTargetAtTime(1000+gScaleX*700,t,.35);
+      /* chaos : allpass qui tourne = pseudo-phaser organique */
+      ap1.frequency.setTargetAtTime(500+gScaleX*500+gChaos*1200,t,.20);
+      ap2.frequency.setTargetAtTime(1000+gScaleX*700+gChaos*2000,t,.20);
+    };
+
+  /* ── GAVE — FM dual modulateurs inharmoniques
+     [0]=carrier [1]=mod1 [2]=mod2 [3]=mg1 [4]=mg2 [5]=carG
+     [6]=lfo [7]=lfoG [8]=filt [9]=peak [10]=wave */
+  } else if(name==='gave'){
+    var carrier=actx.createOscillator(); carrier.type=inv?'sine':'sawtooth';
+    var mod1   =actx.createOscillator(); mod1.type=inv?'sine':'triangle';
+    var mod2   =actx.createOscillator(); mod2.type=inv?'triangle':'square';
+    var mg1    =actx.createGain(); mg1.gain.value=0;
+    var mg2    =actx.createGain(); mg2.gain.value=0;
+    var carG   =actx.createGain(); carG.gain.value=0.38;
+    var lfo    =actx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.8;
+    var lfoG   =actx.createGain(); lfoG.gain.value=0;
+    /* filtre passe-bas pour adoucir le haut */
+    var filt   =actx.createBiquadFilter(); filt.type='lowpass'; filt.Q.value=1.2;
+    /* peak à ~1.2kHz pour la présence nasillarde */
+    var peak   =actx.createBiquadFilter(); peak.type='peaking';
+    peak.frequency.value=1200; peak.Q.value=2.2; peak.gain.value=7;
+    var wave   =actx.createWaveShaper(); wave.curve=tanhCurve(inv?0.8:1.4);
+
+    mod1.connect(mg1); mg1.connect(carrier.frequency);
+    mod2.connect(mg2); mg2.connect(carrier.frequency);
+    lfo.connect(lfoG); lfoG.connect(mg1.gain);
+    carrier.connect(carG); carG.connect(filt);
+    filt.connect(peak); peak.connect(wave); wave.connect(dst);
+    carrier.start(now); mod1.start(now); mod2.start(now); lfo.start(now);
+    patchNodes=[carrier,mod1,mod2,mg1,mg2,carG,lfo,lfoG,filt,peak,wave];
+
+    updateFn=function(){
+      var t=actx.currentTime, fc=110*Math.pow(2,gRep/14);
+      carrier.frequency.setTargetAtTime(fc,t,.08);
+      /* mod1 à ratio légèrement inharmonique → timbre de clavecin électrique */
+      mod1.frequency.setTargetAtTime(fc*(2.0+gSpd*0.08),t,.08);
+      /* mod2 à ratio distinct → couche de rugosité */
+      mod2.frequency.setTargetAtTime(fc*(3.1+gSpd*0.12),t,.08);
+      /* index FM : scaleY contrôle la brillance/mordant */
+      var idx1=fc*(0.12+gScaleY*0.55+gChaos*2.8);
+      var idx2=fc*(0.06+gScaleX*0.30+gChaos*1.6);
+      mg1.gain.setTargetAtTime(idx1,t,.06);
+      mg2.gain.setTargetAtTime(idx2,t,.06);
+      /* LFO lent sur index → vibrato de timbre */
+      lfo.frequency.setTargetAtTime(0.4+gSpd*0.12,t,.10);
+      lfoG.gain.setTargetAtTime(gAmp*idx1*0.6,t,.06);
+      filt.frequency.setTargetAtTime(800+gScaleY*3500,t,.10);
+      peak.gain.value=5+gChaos*10;
+      wave.curve=tanhCurve(inv?(0.8+gChaos*4):(1.4+gChaos*6));
+    };
+
+  /* ── LARCHER — Comb + dual osc solennel
+     [0]=osc1 [1]=osc2 [2]=lfo [3]=g1 [4]=g2
+     [5]=comb1 [6]=comb2 [7]=lfoG [8]=filt [9]=wave */
+  } else if(name==='larcher'){
+    var osc1 =actx.createOscillator(); osc1.type=inv?'sine':'sawtooth';
+    var osc2 =actx.createOscillator(); osc2.type=inv?'sine':'triangle';
+    var g1   =actx.createGain(); g1.gain.value=0.32;
+    var g2   =actx.createGain(); g2.gain.value=0.20;
+    /* deux filtres en peigne décalés = effet de tuyau d'orgue creux */
+    var comb1=actx.createBiquadFilter(); comb1.type='bandpass'; comb1.Q.value=8;
+    var comb2=actx.createBiquadFilter(); comb2.type='bandpass'; comb2.Q.value=6;
+    var lfo  =actx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.15;
+    var lfoG =actx.createGain(); lfoG.gain.value=0;
+    /* passe-bas final pour couper l'aigreur */
+    var filt =actx.createBiquadFilter(); filt.type='lowpass'; filt.Q.value=0.8;
+    var wave =actx.createWaveShaper(); wave.curve=tanhCurve(inv?0.6:1.0);
+    var outG =actx.createGain(); outG.gain.value=0.44;
+
+    osc1.connect(g1); osc2.connect(g2);
+    g1.connect(comb1); g2.connect(comb2);
+    lfo.connect(lfoG); lfoG.connect(comb1.frequency); lfoG.connect(comb2.frequency);
+    comb1.connect(filt); comb2.connect(filt);
+    filt.connect(wave); wave.connect(outG); outG.connect(dst);
+    osc1.start(now); osc2.start(now); lfo.start(now);
+    patchNodes=[osc1,osc2,lfo,g1,g2,comb1,comb2,lfoG,filt,wave,outG];
+
+    updateFn=function(){
+      var t=actx.currentTime, fc=82*Math.pow(2,gRep/14);
+      osc1.frequency.setTargetAtTime(fc,t,.20);
+      /* osc2 légèrement désaccordé → battement solennel */
+      osc2.frequency.setTargetAtTime(fc*(1+gSpd*0.004),t,.20);
+      /* combs sur harmoniques → couleur tuyau d'orgue */
+      comb1.frequency.setTargetAtTime(fc*(2+gScaleY*3),t,.15);
+      comb2.frequency.setTargetAtTime(fc*(3+gScaleX*2.5),t,.15);
+      comb1.Q.value=6+gChaos*18;
+      comb2.Q.value=4+gChaos*14;
+      /* LFO très lent → vibrato solennel */
+      lfo.frequency.setTargetAtTime(0.08+gSpd*0.04,t,.30);
+      lfoG.gain.setTargetAtTime(fc*(0.04+gAmp*0.8+gChaos*1.2),t,.15);
+      filt.frequency.setTargetAtTime(600+gScaleY*2800,t,.15);
+      /* chaos : osc2 décroche harmoniquement + Q des combs explose */
+      osc2.frequency.setTargetAtTime(fc*(1+gSpd*0.004+gChaos*0.35),t,.12);
+      wave.curve=tanhCurve(inv?(0.6+gChaos*5):(1.0+gChaos*7));
     };
   }
 
@@ -627,6 +926,7 @@ function loop(){
 }
 
 loadImage(imgIndex,true);
+initAllSliders();
 loop();
 </script>
 </body>
