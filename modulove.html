@@ -120,6 +120,11 @@ var gRep=DEF.rep, gSpd=DEF.spd, gAmp=DEF.amp, gDir=DEF.dir, gChaos=DEF.chaos;
 var gScaleX=DEF.scaleX, gScaleY=DEF.scaleY;
 var actx=null, synthOn=false, masterGain=null, patchNodes=[], updateFn=null;
 
+/* portamento vitesse : gSpd = cible UI, gSpdSmooth = valeur interpolée rendue */
+var gSpdTarget = DEF.spd;
+var gSpdSmooth = DEF.spd;
+var SPD_SLEW   = 0.05; /* coefficient d'interpolation par frame */
+
 /* ══════════════════════════════════════════════
    WebGL
 ══════════════════════════════════════════════ */
@@ -234,7 +239,7 @@ function loadImage(index, applyDef){
    UI
 ══════════════════════════════════════════════ */
 function applyParams(p){
-  gScaleY=p.scaleY; gScaleX=p.scaleX; gRep=p.rep; gSpd=p.spd; gAmp=p.amp; gDir=p.dir; gChaos=p.chaos;
+  gScaleY=p.scaleY; gScaleX=p.scaleX; gRep=p.rep; gSpd=p.spd; gSpdTarget=p.spd; gSpdSmooth=p.spd; gAmp=p.amp; gDir=p.dir; gChaos=p.chaos;
   document.getElementById('scaleY').value=gScaleY;       document.getElementById('scaleYVal').textContent=gScaleY.toFixed(2);
   document.getElementById('scaleX').value=gScaleX;       document.getElementById('scaleXVal').textContent=gScaleX.toFixed(2);
   document.getElementById('rep').value=gRep;             document.getElementById('repVal').textContent=(+gRep).toFixed(1);
@@ -245,7 +250,7 @@ function applyParams(p){
 }
 
 document.getElementById('rep').oninput          = function(e){ gRep   =+e.target.value; document.getElementById('repVal').textContent   =(+gRep).toFixed(1);    };
-document.getElementById('spd').oninput          = function(e){ gSpd   =+e.target.value; document.getElementById('spdVal').textContent   =(+gSpd).toFixed(1);    };
+document.getElementById('spd').oninput = function(e){ gSpd=+e.target.value; gSpdTarget=gSpd; document.getElementById('spdVal').textContent=(+gSpd).toFixed(1); };
 document.getElementById('amp').oninput          = function(e){ gAmp   =+e.target.value; document.getElementById('ampVal').textContent   =(+gAmp).toFixed(2);    };
 document.getElementById('scaleX').oninput       = function(e){ gScaleX=+e.target.value; document.getElementById('scaleXVal').textContent=(+gScaleX).toFixed(2); };
 document.getElementById('scaleY').oninput       = function(e){ gScaleY=+e.target.value; document.getElementById('scaleYVal').textContent=(+gScaleY).toFixed(2); };
@@ -598,9 +603,19 @@ document.getElementById('soundBtn').onclick=function(){
 var startT=performance.now();
 function loop(){
   var t=(performance.now()-startT)/1000;
+
+  /* portamento vitesse */
+  gSpdSmooth += (gSpdTarget - gSpdSmooth) * SPD_SLEW;
+
+  /* amplitude → volume master : silence si gAmp == 0 */
+  if(masterGain && actx){
+    var targetVol = gAmp > 0 ? 0.48 : 0;
+    masterGain.gain.setTargetAtTime(targetVol, actx.currentTime, 0.08);
+  }
+
   gl.uniform1f(U.time,  t);
   gl.uniform1f(U.rep,   Math.max(0.1,gRep));
-  gl.uniform1f(U.spd,   gSpd);
+  gl.uniform1f(U.spd,   gSpdSmooth);
   gl.uniform1f(U.amp,   Math.max(0,gAmp));
   gl.uniform1f(U.dir,   gDir);
   gl.uniform1f(U.chaos, gChaos);
