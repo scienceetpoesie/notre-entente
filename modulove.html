@@ -208,6 +208,9 @@ canvas { display:block; width:720px; height:480px; flex-shrink:0; }
 </style>
 </head>
 <body>
+
+<div id="appTitle">Modulove</div>
+
 <div class="scene">
   <button id="soundBtn">&#9834;</button>
   <div class="canvas-frame">
@@ -241,9 +244,6 @@ var DEF = { scaleY:1.00, scaleX:1.45, rep:7, spd:3, amp:0.04, dir:1, chaos:0 };
 var BASE = 'https://raw.githubusercontent.com/scienceetpoesie/notre-entente/main/modulove%20portaits/';
 
 var images = [
-  { url:BASE+'Stephane-Ravier.png',
-    name:'Stéphane Ravier', synth:'ravier',
-    defaults:{scaleY:0.99,scaleX:0.67,rep:9.5,spd:6.6,amp:0.07,dir:1,chaos:0} },
   { url:BASE+'steiniger_johannes_gross.jpg',
     name:'Johannes Steiniger', synth:'steiniger',
     defaults:{} },
@@ -259,31 +259,23 @@ var images = [
   { url:BASE+'Beigbeder.jpg',
     name:'Frédéric Beigbeder', synth:'beigbeder',
     defaults:{scaleY:0.78,scaleX:0.77,rep:5,spd:10.2,amp:0.26,dir:0,chaos:0.11} },
-
-  /* ── CHARLES GAVE ──────────────────────────────────────────
-     Remplace l'URL ci-dessous par ton lien GitHub raw, exemple :
-     url: 'https://raw.githubusercontent.com/TON-USER/TON-REPO/main/modulove%20portaits/charles-gave.jpg'
-  ─────────────────────────────────────────────────────────── */
   { url: 'https://raw.githubusercontent.com/scienceetpoesie/notre-entente/main/modulove%20portaits/Charles%20Gave.png',
     name:'Charles Gave', synth:'gave',
     defaults:{scaleY:1.00,scaleX:1.00,rep:8,spd:4,amp:0.08,dir:1,chaos:0} },
-
   { url: 'https://raw.githubusercontent.com/scienceetpoesie/notre-entente/main/modulove%20portaits/G%C3%A9rard%20Larcher.jpg',
     name:'Gérard Larcher', synth:'larcher',
     defaults:{scaleY:1.00,scaleX:1.00,rep:6,spd:2,amp:0.06,dir:1,chaos:0} },
 ];
 
-var imgIndex = 0;
-do { imgIndex = Math.floor(Math.random() * images.length); } while (imgIndex === 4);
+var imgIndex = Math.floor(Math.random() * images.length);
 
 var gRep=DEF.rep, gSpd=DEF.spd, gAmp=DEF.amp, gDir=DEF.dir, gChaos=DEF.chaos;
 var gScaleX=DEF.scaleX, gScaleY=DEF.scaleY;
 var actx=null, synthOn=false, masterGain=null, patchNodes=[], updateFn=null;
 
-/* portamento vitesse : gSpd = cible UI, gSpdSmooth = valeur interpolée rendue */
 var gSpdTarget = DEF.spd;
 var gSpdSmooth = DEF.spd;
-var SPD_SLEW   = 0.05; /* coefficient d'interpolation par frame */
+var SPD_SLEW   = 0.05;
 
 /* ══════════════════════════════════════════════
    WebGL
@@ -391,8 +383,7 @@ function loadImage(index, applyDef){
     gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
   };
   img.src = e.url;
-  /* changement de personnage → rebuild complet (nouvelle note) */
-  if(synthOn && actx) rebuildPatch(e.synth||'ravier');
+  if(synthOn && actx) rebuildPatch(e.synth||'steiniger');
 }
 
 /* ══════════════════════════════════════════════
@@ -410,7 +401,6 @@ function applyParams(p){
   initAllSliders();
 }
 
-/* ── remplissage or/brun des sliders selon valeur ── */
 function updateSliderFill(el){
   var min=+el.min, max=+el.max, val=+el.value;
   var pct = ((val - min) / (max - min) * 100).toFixed(1);
@@ -428,54 +418,47 @@ document.getElementById('scaleY').oninput = function(e){ gScaleY=+e.target.value
 document.getElementById('randomSlider').oninput = function(e){ gChaos=+e.target.value; document.getElementById('randomVal').textContent=(+gChaos).toFixed(2); updateSliderFill(e.target); };
 document.getElementById('imgBtn').onclick = function(){ imgIndex=(imgIndex+1)%images.length; loadImage(imgIndex,false); };
 
-/* ── X/Y : change forme d'onde à chaud, sans relancer l'enveloppe ── */
 document.getElementById('dirBtn').onclick = function(){
   gDir = gDir<0.5 ? 1 : 0;
   document.getElementById('dirBtn').textContent = gDir<0.5?'X':'Y';
-  applyWaveformSwitch(images[imgIndex].synth||'ravier');
-  updatePatchLabel(images[imgIndex].synth||'ravier');
+  applyWaveformSwitch(images[imgIndex].synth||'steiniger');
+  updatePatchLabel(images[imgIndex].synth||'steiniger');
 };
 
 /* ══════════════════════════════════════════════
    Changement de forme d'onde à chaud
-   Indices des oscillateurs par patch (voir commentaires rebuildPatch)
 ══════════════════════════════════════════════ */
 function applyWaveformSwitch(name){
   if(!actx||!synthOn||patchNodes.length===0) return;
   var inv=(gDir<0.5);
   try{
-    if(name==='ravier'){
-      patchNodes[0].type = inv?'sine':'triangle';   /* carrier */
-      patchNodes[1].type = inv?'triangle':'square'; /* modOsc  */
-    } else if(name==='steiniger'){
-      patchNodes[0].type = inv?'triangle':'square'; /* oA */
-      patchNodes[1].type = inv?'sine':'square';     /* oB */
+    if(name==='steiniger'){
+      patchNodes[0].type = inv?'triangle':'square';
+      patchNodes[1].type = inv?'sine':'square';
     } else if(name==='val'){
-      patchNodes[0].type = inv?'sine':'sawtooth';   /* oA */
-      patchNodes[1].type = inv?'sine':'triangle';   /* oB */
+      patchNodes[0].type = inv?'sine':'sawtooth';
+      patchNodes[1].type = inv?'sine':'triangle';
     } else if(name==='blocher'){
-      patchNodes[0].type = inv?'triangle':'sine';   /* sub */
+      patchNodes[0].type = inv?'triangle':'sine';
     } else if(name==='lellouche'){
-      patchNodes[0].type = inv?'sine':'sawtooth';   /* op1 */
-      patchNodes[1].type = inv?'sine':'triangle';   /* op2 */
+      patchNodes[0].type = inv?'sine':'sawtooth';
+      patchNodes[1].type = inv?'sine':'triangle';
     } else if(name==='beigbeder'){
-      patchNodes[0].type = inv?'triangle':'sine';   /* oA */
-      patchNodes[1].type = inv?'triangle':'sine';   /* oB */
-      patchNodes[9].type = inv?'highpass':'lowpass';/* filt */
+      patchNodes[0].type = inv?'triangle':'sine';
+      patchNodes[1].type = inv?'triangle':'sine';
+      patchNodes[9].type = inv?'highpass':'lowpass';
     } else if(name==='gave'){
-      patchNodes[0].type = inv?'sine':'sawtooth';   /* carrier */
-      patchNodes[1].type = inv?'sine':'triangle';   /* mod1   */
-      patchNodes[2].type = inv?'triangle':'square'; /* mod2   */
+      patchNodes[0].type = inv?'sine':'sawtooth';
+      patchNodes[1].type = inv?'sine':'triangle';
+      patchNodes[2].type = inv?'triangle':'square';
     } else if(name==='larcher'){
-      patchNodes[0].type = inv?'sine':'sawtooth';   /* osc principal */
-      patchNodes[1].type = inv?'sine':'triangle';   /* osc secondaire */
+      patchNodes[0].type = inv?'sine':'sawtooth';
+      patchNodes[1].type = inv?'sine':'triangle';
     }
   }catch(e){}
 }
 
-/* Labels patch par synth × axe */
 var PATCH_LABELS = {
-  ravier:    ['patch : fm · sine/triangle · spectral',       'patch : fm 2-op · cuivré · harangue'],
   steiniger: ['patch : ring mod · rond · presque voix',      'patch : ring mod · métallique · parlementaire'],
   val:       ['patch : cross mod · sinusoïdal · instable',   'patch : cross mod · inharmonique · rhétorique'],
   blocher:   ['patch : sub triangle · battements · montagnard','patch : sub sine · tellurique · massif'],
@@ -519,8 +502,7 @@ function disposeNodes(){
 }
 
 /* ══════════════════════════════════════════════
-   PATCHES — rebuild complet (bouton ♪ ou changement de personnage)
-   Indices des patchNodes documentés en en-tête de chaque bloc.
+   PATCHES
 ══════════════════════════════════════════════ */
 function rebuildPatch(name){
   if(!actx||!synthOn) return;
@@ -528,44 +510,9 @@ function rebuildPatch(name){
   var dst=masterGain, now=actx.currentTime;
   var inv=(gDir<0.5);
 
-  /* ── RAVIER — FM 2-op
-     [0]=carrier [1]=modOsc [2]=lfo [3]=modGain [4]=carGain [5]=lfoG [6]=filt [7]=wave */
-  if(name==='ravier'){
-    var carrier=actx.createOscillator(); carrier.type=inv?'sine':'triangle';
-    var modOsc =actx.createOscillator(); modOsc.type=inv?'triangle':'square';
-    var modGain=actx.createGain();
-    var carGain=actx.createGain(); carGain.gain.value=0.40;
-    var lfo    =actx.createOscillator(); lfo.type='sine'; lfo.frequency.value=3.2;
-    var lfoG   =actx.createGain(); lfoG.gain.value=0;
-    var filt   =actx.createBiquadFilter(); filt.type='bandpass'; filt.Q.value=inv?1.8:2.8;
-    var wave   =actx.createWaveShaper(); wave.curve=tanhCurve(inv?1.1:1.6);
-    var sh     =makeSH(2+gChaos*8,0);
-    modOsc.connect(modGain); modGain.connect(carrier.frequency);
-    if(sh) sh.node.connect(carrier.frequency);
-    lfo.connect(lfoG); lfoG.connect(carrier.frequency);
-    carrier.connect(carGain); carGain.connect(filt); filt.connect(wave); wave.connect(dst);
-    carrier.start(now); modOsc.start(now); lfo.start(now);
-    patchNodes=[carrier,modOsc,lfo,modGain,carGain,lfoG,filt,wave];
-    if(sh) patchNodes.push(sh);
-    updateFn=function(){
-      var t=actx.currentTime, fc=55*Math.pow(2,gRep/18);
-      carrier.frequency.setTargetAtTime(fc,t,.10);
-      modOsc.frequency.setTargetAtTime(fc*(0.5+gSpd*0.22),t,.10);
-      /* chaos : index FM qui monte = plus de sidebands, saturation progressive */
-      var idx = fc*(Math.min(0.35+gSpd*0.13, 2.8) + gChaos*4.5);
-      modGain.gain.setTargetAtTime(idx,t,.08);
-      lfo.frequency.setTargetAtTime(0.3+gSpd*0.22+gChaos*8,t,.10);
-      lfoG.gain.setTargetAtTime(gAmp*160,t,.06);
-      filt.frequency.setTargetAtTime(180+gScaleY*1700,t,.10);
-      /* chaos : Q qui résonne jusqu'au cri */
-      filt.Q.setTargetAtTime(inv?(1.6+gChaos*12):(1.4+gChaos*14),t,.08);
-      /* chaos : waveshaper de plus en plus dur */
-      wave.curve=tanhCurve(inv?(1.1+gChaos*6):(1.6+gChaos*8));
-    };
-
   /* ── STEINIGER — Ring mod
      [0]=oA [1]=oB [2]=lfo [3]=ringG [4]=mix [5]=lfoG [6]=filt */
-  } else if(name==='steiniger'){
+  if(name==='steiniger'){
     var oA=actx.createOscillator(); oA.type=inv?'triangle':'square';
     var oB=actx.createOscillator(); oB.type=inv?'sine':'square';
     var ringG=actx.createGain(); ringG.gain.value=0;
@@ -584,17 +531,14 @@ function rebuildPatch(name){
     if(sh) patchNodes.push(sh);
     updateFn=function(){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
-      /* chaos : ratio oA/oB qui dérive → battements de plus en plus larges */
       var drift = 1 + (0.5+gSpd*0.35)*0.04 + gChaos*0.18;
       oA.frequency.setTargetAtTime(fc,t,.10);
       oB.frequency.setTargetAtTime(fc*drift,t,.10);
       oA.detune.setTargetAtTime((gScaleX-1)*70,t,.10);
       oB.detune.setTargetAtTime(-(gScaleX-1)*70,t,.10);
       filt.frequency.setTargetAtTime(inv?(600+gScaleY*2800):(150+gScaleY*1500),t,.10);
-      /* chaos : LFO accélère → balayage filtre de plus en plus rapide */
       lfo.frequency.setTargetAtTime(0.04+gSpd*0.09+gChaos*3.5,t,.10);
       lfoG.gain.setTargetAtTime(gAmp*420+gChaos*800,t,.07);
-      /* chaos : Q monte → résonance métallique de plus en plus criante */
       filt.Q.setTargetAtTime(inv?(1.2+gChaos*9):(1.8+gChaos*12),t,.10);
     };
 
@@ -624,16 +568,13 @@ function rebuildPatch(name){
     updateFn=function(){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
       oA.frequency.setTargetAtTime(fc,t,.10);
-      /* chaos : ratio golden qui dévie → inharmonicité croissante */
       oB.frequency.setTargetAtTime(fc*(1.618+gChaos*0.9),t,.10);
-      /* chaos : index cross-mod explose = sons métalliques/aléatoires */
       var idx=fc*(0.15+gSpd*0.18+gChaos*3.2);
       gAB.gain.setTargetAtTime(idx,t,.08);
       gBA.gain.setTargetAtTime(idx*(0.7+gChaos*0.5),t,.08);
       lfo.frequency.setTargetAtTime(0.15+gSpd*0.25+gChaos*2,t,.10);
       lfoG.gain.setTargetAtTime(gAmp*750,t,.06);
       filt.frequency.setTargetAtTime(300+gScaleY*3200,t,.10);
-      /* chaos : Q très haut = filtre qui siffle */
       filt.Q.setTargetAtTime(1.5+gChaos*14,t,.10);
     };
 
@@ -663,17 +604,13 @@ function rebuildPatch(name){
     if(sh) patchNodes.push(sh);
     updateFn=function(){
       var t=actx.currentTime;
-      /* fréquence de base relevée : plus de médiums accessibles via répétition */
       var fc=55*Math.pow(2,gRep/12);
       sub.frequency.setTargetAtTime(fc,t,.25);
-      /* chaos : beat freq qui s'emballe → pulsation de plus en plus rapide */
       var beatFreq=inv?(1.2+gSpd*0.8+gChaos*18):(0.4+gSpd*0.35+gChaos*12);
       ringOsc.frequency.setTargetAtTime(fc+beatFreq,t,.20);
       ringOut.gain.setTargetAtTime(0.15+gAmp*0.6,t,.12);
-      /* hauteur (scaleY) → ouverture du filtre = timbre de grave à médium */
       comb.frequency.setTargetAtTime(
         inv?(200+gScaleY*2200+gChaos*1800):(80+gScaleY*1800+gChaos*1200),t,.18);
-      /* largeur (scaleX) → Q du filtre = son étroit ou large */
       comb.Q.setTargetAtTime(inv?(0.8+gScaleX*3+gChaos*6):(0.6+gScaleX*4+gChaos*8),t,.12);
       lfo.frequency.setTargetAtTime(0.02+gSpd*0.06+gChaos*0.4,t,.20);
       lfoG.gain.setTargetAtTime(gAmp*320,t,.10);
@@ -708,7 +645,6 @@ function rebuildPatch(name){
     if(sh) patchNodes.push(sh);
     updateFn=function(){
       var t=actx.currentTime, fc=55*Math.pow(2,gRep/12);
-      /* chaos : ratio opérateurs qui dévient → spectre FM qui se déforme */
       var fmR=0.5+gSpd*0.32+gChaos*0.8;
       car.frequency.setTargetAtTime(fc,t,.08);
       op3.frequency.setTargetAtTime(fc*fmR,t,.08);
@@ -720,7 +656,6 @@ function rebuildPatch(name){
       g3.gain.setTargetAtTime(idx*.28,t,.08);
       lfo.frequency.setTargetAtTime(0.2+gSpd*0.17,t,.10);
       lfoM.gain.setTargetAtTime(gAmp*idx*1.4,t,.05);
-      /* chaos : feedback qui s'emballe = distorsion FM interne */
       fbG.gain.setTargetAtTime(inv?(gChaos*0.72):(gChaos*0.58),t,.08);
       filt.frequency.setTargetAtTime(280+gScaleY*2700,t,.10);
       filt.Q.setTargetAtTime(1.4+gChaos*10,t,.10);
@@ -758,11 +693,9 @@ function rebuildPatch(name){
       var t=actx.currentTime;
       var fc=55*Math.pow(2,gRep/20);
       oA.frequency.setTargetAtTime(fc,t,.60);
-      /* chaos : ratio quinte (1.5) qui glisse vers le triton (1.414) puis se désaccorde */
       var ratio=1.5 - gChaos*0.18;
       var beat=0.4+gSpd*0.18+gChaos*4;
       oB.frequency.setTargetAtTime(fc*ratio+beat,t,.45);
-      /* chaos : harmonique haute qui décroche de l'octave */
       oC.frequency.setTargetAtTime(fc*(5+gChaos*3.5),t,.40);
       filt.frequency.setTargetAtTime(
         inv?(280+gScaleY*900+gAmp*2400):(140+gScaleY*900+gAmp*2000),t,.40);
@@ -770,7 +703,6 @@ function rebuildPatch(name){
       lfo.frequency.setTargetAtTime(0.02+gSpd*0.012+gChaos*0.08,t,.80);
       lfoA.gain.setTargetAtTime(gAmp*500+gChaos*600,t,.25);
       lfoB.gain.setTargetAtTime(gAmp*0.10,t,.30);
-      /* chaos : allpass qui tourne = pseudo-phaser organique */
       ap1.frequency.setTargetAtTime(500+gScaleX*500+gChaos*1200,t,.20);
       ap2.frequency.setTargetAtTime(1000+gScaleX*700+gChaos*2000,t,.20);
     };
@@ -787,13 +719,10 @@ function rebuildPatch(name){
     var carG   =actx.createGain(); carG.gain.value=0.38;
     var lfo    =actx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.8;
     var lfoG   =actx.createGain(); lfoG.gain.value=0;
-    /* filtre passe-bas pour adoucir le haut */
     var filt   =actx.createBiquadFilter(); filt.type='lowpass'; filt.Q.value=1.2;
-    /* peak à ~1.2kHz pour la présence nasillarde */
     var peak   =actx.createBiquadFilter(); peak.type='peaking';
     peak.frequency.value=1200; peak.Q.value=2.2; peak.gain.value=7;
     var wave   =actx.createWaveShaper(); wave.curve=tanhCurve(inv?0.8:1.4);
-
     mod1.connect(mg1); mg1.connect(carrier.frequency);
     mod2.connect(mg2); mg2.connect(carrier.frequency);
     lfo.connect(lfoG); lfoG.connect(mg1.gain);
@@ -801,20 +730,15 @@ function rebuildPatch(name){
     filt.connect(peak); peak.connect(wave); wave.connect(dst);
     carrier.start(now); mod1.start(now); mod2.start(now); lfo.start(now);
     patchNodes=[carrier,mod1,mod2,mg1,mg2,carG,lfo,lfoG,filt,peak,wave];
-
     updateFn=function(){
       var t=actx.currentTime, fc=110*Math.pow(2,gRep/14);
       carrier.frequency.setTargetAtTime(fc,t,.08);
-      /* mod1 à ratio légèrement inharmonique → timbre de clavecin électrique */
       mod1.frequency.setTargetAtTime(fc*(2.0+gSpd*0.08),t,.08);
-      /* mod2 à ratio distinct → couche de rugosité */
       mod2.frequency.setTargetAtTime(fc*(3.1+gSpd*0.12),t,.08);
-      /* index FM : scaleY contrôle la brillance/mordant */
       var idx1=fc*(0.12+gScaleY*0.55+gChaos*2.8);
       var idx2=fc*(0.06+gScaleX*0.30+gChaos*1.6);
       mg1.gain.setTargetAtTime(idx1,t,.06);
       mg2.gain.setTargetAtTime(idx2,t,.06);
-      /* LFO lent sur index → vibrato de timbre */
       lfo.frequency.setTargetAtTime(0.4+gSpd*0.12,t,.10);
       lfoG.gain.setTargetAtTime(gAmp*idx1*0.6,t,.06);
       filt.frequency.setTargetAtTime(800+gScaleY*3500,t,.10);
@@ -830,16 +754,13 @@ function rebuildPatch(name){
     var osc2 =actx.createOscillator(); osc2.type=inv?'sine':'triangle';
     var g1   =actx.createGain(); g1.gain.value=0.32;
     var g2   =actx.createGain(); g2.gain.value=0.20;
-    /* deux filtres en peigne décalés = effet de tuyau d'orgue creux */
     var comb1=actx.createBiquadFilter(); comb1.type='bandpass'; comb1.Q.value=8;
     var comb2=actx.createBiquadFilter(); comb2.type='bandpass'; comb2.Q.value=6;
     var lfo  =actx.createOscillator(); lfo.type='sine'; lfo.frequency.value=0.15;
     var lfoG =actx.createGain(); lfoG.gain.value=0;
-    /* passe-bas final pour couper l'aigreur */
     var filt =actx.createBiquadFilter(); filt.type='lowpass'; filt.Q.value=0.8;
     var wave =actx.createWaveShaper(); wave.curve=tanhCurve(inv?0.6:1.0);
     var outG =actx.createGain(); outG.gain.value=0.44;
-
     osc1.connect(g1); osc2.connect(g2);
     g1.connect(comb1); g2.connect(comb2);
     lfo.connect(lfoG); lfoG.connect(comb1.frequency); lfoG.connect(comb2.frequency);
@@ -847,22 +768,17 @@ function rebuildPatch(name){
     filt.connect(wave); wave.connect(outG); outG.connect(dst);
     osc1.start(now); osc2.start(now); lfo.start(now);
     patchNodes=[osc1,osc2,lfo,g1,g2,comb1,comb2,lfoG,filt,wave,outG];
-
     updateFn=function(){
       var t=actx.currentTime, fc=82*Math.pow(2,gRep/14);
       osc1.frequency.setTargetAtTime(fc,t,.20);
-      /* osc2 légèrement désaccordé → battement solennel */
       osc2.frequency.setTargetAtTime(fc*(1+gSpd*0.004),t,.20);
-      /* combs sur harmoniques → couleur tuyau d'orgue */
       comb1.frequency.setTargetAtTime(fc*(2+gScaleY*3),t,.15);
       comb2.frequency.setTargetAtTime(fc*(3+gScaleX*2.5),t,.15);
       comb1.Q.value=6+gChaos*18;
       comb2.Q.value=4+gChaos*14;
-      /* LFO très lent → vibrato solennel */
       lfo.frequency.setTargetAtTime(0.08+gSpd*0.04,t,.30);
       lfoG.gain.setTargetAtTime(fc*(0.04+gAmp*0.8+gChaos*1.2),t,.15);
       filt.frequency.setTargetAtTime(600+gScaleY*2800,t,.15);
-      /* chaos : osc2 décroche harmoniquement + Q des combs explose */
       osc2.frequency.setTargetAtTime(fc*(1+gSpd*0.004+gChaos*0.35),t,.12);
       wave.curve=tanhCurve(inv?(0.6+gChaos*5):(1.0+gChaos*7));
     };
@@ -872,7 +788,7 @@ function rebuildPatch(name){
 }
 
 /* ══════════════════════════════════════════════
-   Init audio + bouton son (rebuild complet = nouvelle note)
+   Init audio
 ══════════════════════════════════════════════ */
 function initAudio(){
   if(actx) return;
@@ -885,7 +801,7 @@ document.getElementById('soundBtn').onclick=function(){
   if(actx.state==='suspended') actx.resume();
   synthOn=!synthOn;
   document.getElementById('soundBtn').classList.toggle('on',synthOn);
-  if(synthOn){ rebuildPatch(images[imgIndex].synth||'ravier'); }
+  if(synthOn){ rebuildPatch(images[imgIndex].synth||'steiniger'); }
   else{ disposeNodes(); document.getElementById('synthInfo').textContent=''; }
 };
 
@@ -896,10 +812,8 @@ var startT=performance.now();
 function loop(){
   var t=(performance.now()-startT)/1000;
 
-  /* portamento vitesse */
   gSpdSmooth += (gSpdTarget - gSpdSmooth) * SPD_SLEW;
 
-  /* amplitude → volume master : silence si gAmp == 0 */
   if(masterGain && actx){
     var targetVol = gAmp > 0 ? 0.48 : 0;
     masterGain.gain.setTargetAtTime(targetVol, actx.currentTime, 0.08);
